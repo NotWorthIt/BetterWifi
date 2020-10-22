@@ -2,7 +2,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi_info_plugin/wifi_info_plugin.dart';
-
+import 'package:flutter_compass/flutter_compass.dart';
 
 void main() => runApp(App());
 
@@ -20,13 +20,11 @@ class App extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,36 +32,29 @@ class _HomePageState extends State<HomePage> {
           title: Text('Internet connectivity'),
         ),
         body: Center(
-            child: RaisedButton(
-              child: Text('Check connectivity'),
-              onPressed: _checkInternetConnectivity,
-            ),
-          
-        )
-    );
+          child: RaisedButton(
+            child: Text('Check connectivity'),
+            onPressed: _checkInternetConnectivity,
+          ),
+        ));
   }
 
   _checkInternetConnectivity() async {
-
     // var result = await Connectivity().checkConnectivity();
     WifiInfoWrapper wifiObject;
+    //var tmp = await FlutterCompass.events.first;
     try {
-      wifiObject = await  WifiInfoPlugin.wifiDetails;
-      _showDialog(
-          "signal strength",
-          wifiObject.signalStrength.toString()
-      );
+      wifiObject = await WifiInfoPlugin.wifiDetails;
+      var tmp = await FlutterCompass.events.first;
+
+      // String result = wifiObject.signalStrength.toString();
+
+      String result = "Network: "+wifiObject.signalStrength.toString()+ " GPS: " + tmp.toString();
+
+      _showDialog("signal strength", result);
+    } on PlatformException {
+      _showDialog("Platform not support", "");
     }
-    on PlatformException{
-      _showDialog(
-        "Platform not support",
-        ""
-      );
-    }
-
-
-
-
 
     /*
     if (result == ConnectivityResult.none) {
@@ -102,7 +93,6 @@ class _HomePageState extends State<HomePage> {
               )
             ],
           );
-        }
-    );
+        });
   }
 }

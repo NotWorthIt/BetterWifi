@@ -25,6 +25,7 @@ dependencies:
     sdk: flutter
   connectivity: ^0.4.1
   wifi_info_plugin: ^1.1.5
+  flutter_compass: '^0.4.3'
 
 
   # The following adds the Cupertino Icons font to your application.
