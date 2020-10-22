@@ -37,20 +37,21 @@ class _HomePageState extends State<HomePage> {
             child: RaisedButton(
               child: Text('Check connectivity'),
               onPressed: _checkInternetConnectivity,
-            )
+            ),
+          
         )
     );
   }
 
   _checkInternetConnectivity() async {
-    
+
     // var result = await Connectivity().checkConnectivity();
     WifiInfoWrapper wifiObject;
     try {
       wifiObject = await  WifiInfoPlugin.wifiDetails;
       _showDialog(
-          "signal Strenght",
-          wifiObject.signalStrength
+          "signal strength",
+          wifiObject.signalStrength.toString()
       );
     }
     on PlatformException{
