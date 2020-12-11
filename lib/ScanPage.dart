@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:wifi_info_plugin/wifi_info_plugin.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:logger/logger.dart';
+import 'package:wifi_tool/scanHistory.dart';
+
+import 'drawer.dart';
 
 void main() => runApp(App());
 
@@ -99,6 +102,7 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: Text('Internet connectivity'),
         ),
+        drawer: SideDrawer(),//this will just add the Navigation Drawer Icon
         body: Container(
             child: SingleChildScrollView(
                 child: Column(children: <Widget>[
