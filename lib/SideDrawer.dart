@@ -1,14 +1,15 @@
 
 import 'package:flutter/material.dart';
-import 'package:wifi_tool/scanHistory.dart';
+import 'package:wifi_tool/ScanHistoryPage.dart';
+
+import 'HelpPage.dart';
+import 'ScanPage.dart';
+import 'SettingsPage.dart';
 
 class SideDrawer extends StatefulWidget {
   @override
   _SideDrawer createState() => _SideDrawer();
 }
-
-
-
 
 class _SideDrawer extends State<SideDrawer> {
   // #enddocregion RWS-var
@@ -22,26 +23,25 @@ class _SideDrawer extends State<SideDrawer> {
           ListTile(
               title: Text("Scan"),
               onTap: () {
-                _showDialog("Go to Scan page", "TODO");
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ScanPage()),);
               }
           ),
           ListTile(
               title: Text("Scan history"),
               onTap: () {
-                //_showDialog("Go to Scan history page", "TODO");
                 Navigator.push(context, MaterialPageRoute(builder: (context) => ScanHistory()),);
               }
           ),
           ListTile(
               title: Text("Settings"),
               onTap: () {
-                _showDialog("Go to Settings page", "TODO");
+                Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()),);
               }
           ),
           ListTile(
               title: Text("Help"),
               onTap: () {
-                _showDialog("Go to Help page", "TODO");
+                Navigator.push(context, MaterialPageRoute(builder: (context) => HelpPage()),);
               }
           ),
         ],

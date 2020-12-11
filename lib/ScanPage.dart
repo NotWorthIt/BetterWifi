@@ -5,9 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:wifi_info_plugin/wifi_info_plugin.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:logger/logger.dart';
-import 'package:wifi_tool/scanHistory.dart';
 
-import 'drawer.dart';
+import 'SideDrawer.dart';
 
 void main() => runApp(App());
 
@@ -19,14 +18,14 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.grey,
       ),
-      home: HomePage(),
+      home: ScanPage(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
+class ScanPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _ScanPageState createState() => _ScanPageState();
 }
 
 class GpsPainter extends CustomPainter {
@@ -50,7 +49,7 @@ class GpsPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 var logger = Logger();
-class _HomePageState extends State<HomePage> {
+class _ScanPageState extends State<ScanPage> {
   final gpsController = TextEditingController();
   Timer timerGps;
   GpsPainter painterGps;

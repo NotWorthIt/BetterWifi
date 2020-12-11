@@ -10,9 +10,7 @@ class ScanHistory extends StatefulWidget {
 class _ScanHistory extends State<ScanHistory> {
   final _suggestions = <WordPair>[];
   final _biggerFont = TextStyle(fontSize: 18.0);
-  // #enddocregion RWS-var
 
-  // #docregion _buildSuggestions
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -23,32 +21,18 @@ class _ScanHistory extends State<ScanHistory> {
       body: Container(
           child: ListView.builder(
               padding: EdgeInsets.all(16.0),
-              itemBuilder: /*1*/ (context, i) {
-                if (i.isOdd) return Divider(); /*2*/
-
-                final index = i ~/ 2; /*3*/
+              itemBuilder: (context, i) {
+                if (i.isOdd) return Divider();
+                final index = i ~/ 2;
                 if (index >= _suggestions.length) {
-                  _suggestions.addAll(generateWordPairs().take(10)); /*4*/
+                  _suggestions.addAll(generateWordPairs().take(10));
                 }
                 return _buildRow(_suggestions[index]);
               })
       ),
     );
-    return ListView.builder(
-        padding: EdgeInsets.all(16.0),
-        itemBuilder: /*1*/ (context, i) {
-          if (i.isOdd) return Divider(); /*2*/
-
-          final index = i ~/ 2; /*3*/
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-          }
-          return _buildRow(_suggestions[index]);
-        });
   }
-  // #enddocregion _buildSuggestions
 
-  // #docregion _buildRow
   Widget _buildRow(WordPair pair) {
     return ListTile(
       title: Text(
@@ -56,12 +40,26 @@ class _ScanHistory extends State<ScanHistory> {
         style: _biggerFont,
       ),
       onTap: () {
+        _showDialog(pair.asPascalCase, "TODO go to scan");
       },
     );
   }
-// #enddocregion _buildRow
-
-// #docregion RWS-build
-// #enddocregion RWS-build
-// #docregion RWS-var
+  _showDialog(title, text) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(text),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Ok'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
+  }
 }
