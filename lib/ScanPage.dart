@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi_info_plugin/wifi_info_plugin.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:logger/logger.dart';
-
+import 'dart:ui' as UI;
+import 'dart:typed_data';
 import 'SideDrawer.dart';
+import 'package:image/image.dart' as IMG;
 
 void main() => runApp(App());
 
@@ -30,25 +33,41 @@ class ScanPage extends StatefulWidget {
 
 class GpsPainter extends CustomPainter {
   var _repaint;
-  GpsPainter({Listenable repaint}) : super(repaint: repaint){
+  UI.Image _image;
+
+  GpsPainter({Listenable repaint}) : super(repaint: repaint) {
     _repaint = repaint;
+
   }
+  void setImage(UI.Image image){
+    _image = image;
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
+    /*
     var paint1 = Paint()
       ..color = Color(0xff638965)
       ..style = PaintingStyle.fill;
+                                   */
+    double scale = 0.2;
+    canvas.rotate(_repaint.value.toDouble() * math.pi / 180);
+    canvas.scale(scale);
+    double imageWidth = _image.height.toDouble();
+    double offset = -imageWidth*2.4*scale;
 
-    canvas.rotate(_repaint.value.toDouble()*math.pi/180);
-
-    canvas.drawRect(Offset(0, 0) & Size(50,100), paint1);
-
+    if(_image != null) {
+      canvas.drawImage(_image, Offset(0, offset), new Paint());
+    }
+    //canvas.drawRect(Offset(0, 0) & Size(50, 100), paint1);
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
+
 var logger = Logger();
+
 class _ScanPageState extends State<ScanPage> {
   final gpsController = TextEditingController();
   Timer timerGps;
@@ -60,13 +79,31 @@ class _ScanPageState extends State<ScanPage> {
 
   final instructionsController = TextEditingController();
 
+
+  UI.Image image;
   @override
   void initState() {
     super.initState();
+    loadImage();
     timerGps = Timer.periodic(Duration(milliseconds: 100), (Timer t) => updateGPS());
     timerWifi = Timer.periodic(Duration(seconds: 1), (Timer t) => updateWifi());
     painterGps = GpsPainter(repaint: valueGps);
   }
+
+  Future<UI.Image> loadUiImage(String imageAssetPath) async {
+    final ByteData data = await rootBundle.load(imageAssetPath);
+    final Completer<UI.Image> completer = Completer();
+    UI.decodeImageFromList(Uint8List.view(data.buffer), (UI.Image img) {
+      return completer.complete(img);
+    });
+    return completer.future;
+  }
+
+  Future<void> loadImage() async {
+    image = await loadUiImage("assets/arrow.png");
+    painterGps.setImage(image);
+  }
+
 
   Future<void> updateGPS() async {
     var tmp = await FlutterCompass.events.first;
@@ -101,7 +138,7 @@ class _ScanPageState extends State<ScanPage> {
         appBar: AppBar(
           title: Text('Internet connectivity'),
         ),
-        drawer: SideDrawer(),//this will just add the Navigation Drawer Icon
+        drawer: SideDrawer(), //this will just add the Navigation Drawer Icon
         body: Container(
             child: SingleChildScrollView(
                 child: Column(children: <Widget>[
@@ -138,20 +175,22 @@ class _ScanPageState extends State<ScanPage> {
             controller: instructionsController,
             decoration: InputDecoration(labelText: 'instructions'),
           ),
+          Padding(padding: new EdgeInsets.all(100.0)),
           CustomPaint(
             painter: painterGps,
           ),
         ]))));
   }
 
-  _startScan() async{
+  _startScan() async {
     _showDialog("Scan started", "TODO");
   }
-  _setScan() async{
+
+  _setScan() async {
     _showDialog("Point set", "TODO");
   }
 
-  _stopScan() async{
+  _stopScan() async {
     _showDialog("Scan sopped", "TODO");
   }
 
@@ -162,7 +201,7 @@ class _ScanPageState extends State<ScanPage> {
       var tmp = await FlutterCompass.events.first;
       String result = "Network: " + wifiObject.signalStrength.toString() + " GPS: " + tmp.toString();
       _showDialog("signal strength", result);
-    } on MissingPluginException{
+    } on MissingPluginException {
       _showDialog("Platform not support", "");
     }
   }
@@ -185,5 +224,4 @@ class _ScanPageState extends State<ScanPage> {
           );
         });
   }
-
 }
