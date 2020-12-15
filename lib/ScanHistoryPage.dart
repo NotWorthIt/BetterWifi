@@ -34,7 +34,7 @@ class Data {
   Map<String, dynamic> toJson() => {
     'time': time.toIso8601String(),
     'coordinates': coordinates.map((e) => '[' + e.g.toString() + ',' + e.r.toString()  + ']').toList(),
-    'strengths': coordinates.map((e) => e.toString()).toList(),
+    'strengths': strengths.map((e) => e.toString()).toList(),
   };
 
   String toString(){
@@ -52,13 +52,10 @@ List<Vector2> fromJsonCoordinates(List<dynamic> jsonList){
   return list;
 }
 
-List<int> fromJsonStrengths(String s){
+List<int> fromJsonStrengths(List<dynamic> stringList){
   List<int> list = <int>[];
-  List<String> stringList = s.split(",");
-  stringList[0] = stringList[0].substring(1);
-  stringList.last = stringList.last.substring(0, stringList.last.length-1);
   for(var ele in stringList){
-    list.add(int.parse(ele));
+   list.add(int.parse(ele));
   }
   return list;
 }
@@ -69,10 +66,8 @@ Future delDB() async{
 }
 
 Future addData(List<Vector2> coordinates, List<int> strengths) async{
-  await delDB();
-
+  //await delDB();
   var prefs = await SharedPreferences.getInstance();
-
   //get all data
   if(prefs.getString('data') != null) {
     var dec = json.decode(prefs.getString('data'));
@@ -96,6 +91,29 @@ class _ScanHistory extends State<ScanHistory> {
 
   @override
   Widget build(BuildContext context) {
+    //start of mock-up for presentation
+    List<Vector2> coordinates = <Vector2>[];
+    List<int> strengths = <int>[];
+    coordinates.add(new Vector2(3,4));
+    coordinates.add(new Vector2(5,6));
+    coordinates.add(new Vector2(8,9));
+    coordinates.add(new Vector2(4,4));
+    coordinates.add(new Vector2(0,4));
+
+    strengths.add(1);
+    strengths.add(2);
+    strengths.add(3);
+    strengths.add(4);
+    strengths.add(5);
+
+
+    addData(coordinates, strengths);
+    addData(coordinates, strengths);
+    addData(coordinates, strengths);
+    addData(coordinates, strengths);
+    addData(coordinates, strengths);
+
+    //end of mock-up
     return new Scaffold(
       appBar: AppBar(
         title: Text('Scan history'),
