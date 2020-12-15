@@ -19,7 +19,7 @@ class _HelpPage extends State<HelpPage> {
         drawer: SideDrawer(),
         body: Center(
             child: Text(
-              'On this page helpful information will be displayed',
+              'Contact us on Gihub: https://github.com/NotWorthIt/MobileComputing',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 20),
             )));
