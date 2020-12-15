@@ -19,8 +19,6 @@ class Data {
   List<Vector2> coordinates = <Vector2>[];
   List<int> strengths = <int>[];
 
-
-
   Data(DateTime time, List<Vector2> coordinates, List<int> strengths){
     this.time = time;
     this.coordinates = coordinates;

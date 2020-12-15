@@ -51,26 +51,46 @@ class _SettingsPage extends State<SettingsPage> {
                     leading: Icon(Icons.wifi),
                     switchValue: value1,
                     onToggle: (bool value) {
-                      value1 = value;
+                      _onSwitchChanged1(value);
                     },
                   ),
                   SettingsTile.switchTile(
                     title: 'Scan mobile connection',
                     leading: Icon(Icons.data_usage),
                     switchValue: value2,
-                    onToggle: (bool value2) {},
+                    onToggle: (bool value) {
+                      _onSwitchChanged2(value);
+                    },
                   ),
                   SettingsTile.switchTile(
                     title: 'Dark mode',
                     leading: Icon(Icons.adjust),
                     switchValue: value3,
-                    onToggle: (bool value) {},
+                    onToggle: (bool value) {
+                      _onSwitchChanged3(value);
+                    },
                   ),
                 ],
               ),
             ],
           )),
     );
+  }
+  void _onSwitchChanged1(bool value) {
+    setState(() {
+      value1 = value;
+    });
+  }
+
+  void _onSwitchChanged2(bool value) {
+    setState(() {
+      value2 = value;
+    });
+  }
+  void _onSwitchChanged3(bool value) {
+    setState(() {
+      value3 = value;
+    });
   }
 
   _showDialog(title, text) {
