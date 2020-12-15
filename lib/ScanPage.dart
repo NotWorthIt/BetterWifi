@@ -53,13 +53,14 @@ class GpsPainter extends CustomPainter {
     double scale = 0.6;
     canvas.rotate(_repaint.value.toDouble() * math.pi / 180);
     canvas.scale(scale);
-    double imageWidth = _image.height.toDouble();
-    double offset = -imageWidth * 1 * scale;
+    double imageHeight = _image.height.toDouble();
+    double offsetHeight = -imageHeight * 1 * scale;
+
 
     var paint1 = new Paint();
     paint1.color = Color.fromARGB(255, 255, 255, 255);
     if (_image != null) {
-      canvas.drawImage(_image, Offset(0, offset), paint1);
+      canvas.drawImage(_image, Offset(offsetHeight, offsetHeight), paint1);
     }
     //canvas.drawRect(Offset(0, 0) & Size(50, 100), paint1);
   }
