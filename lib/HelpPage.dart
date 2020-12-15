@@ -19,7 +19,7 @@ class _HelpPage extends State<HelpPage> {
         drawer: SideDrawer(),
         body: Center(
             child: Text(
-              'On this page helpful information will be displayed',
+              'If you need help contact us at: k1608809@students.jku.at',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 20),
             )));

@@ -37,9 +37,9 @@ class GpsPainter extends CustomPainter {
 
   GpsPainter({Listenable repaint}) : super(repaint: repaint) {
     _repaint = repaint;
-
   }
-  void setImage(UI.Image image){
+
+  void setImage(UI.Image image) {
     _image = image;
   }
 
@@ -50,14 +50,16 @@ class GpsPainter extends CustomPainter {
       ..color = Color(0xff638965)
       ..style = PaintingStyle.fill;
                                    */
-    double scale = 0.2;
+    double scale = 0.6;
     canvas.rotate(_repaint.value.toDouble() * math.pi / 180);
     canvas.scale(scale);
     double imageWidth = _image.height.toDouble();
-    double offset = -imageWidth*2.4*scale;
+    double offset = -imageWidth * 1 * scale;
 
-    if(_image != null) {
-      canvas.drawImage(_image, Offset(0, offset), new Paint());
+    var paint1 = new Paint();
+    paint1.color = Color.fromARGB(255, 255, 255, 255);
+    if (_image != null) {
+      canvas.drawImage(_image, Offset(0, offset), paint1);
     }
     //canvas.drawRect(Offset(0, 0) & Size(50, 100), paint1);
   }
@@ -79,8 +81,8 @@ class _ScanPageState extends State<ScanPage> {
 
   final instructionsController = TextEditingController();
 
-
   UI.Image image;
+
   @override
   void initState() {
     super.initState();
@@ -100,10 +102,9 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   Future<void> loadImage() async {
-    image = await loadUiImage("assets/arrow.png");
+    image = await loadUiImage("assets/heatmap.png");
     painterGps.setImage(image);
   }
-
 
   Future<void> updateGPS() async {
     var tmp = await FlutterCompass.events.first;
@@ -117,20 +118,23 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   void moveNorth() {
-    instructionsController.text = "Move north";
+    instructionsController.text = "Move to first corner of your room";
   }
 
   void moveEast() {
-    instructionsController.text = "Move east";
+    instructionsController.text = "Move to second corner of your room";
   }
 
   void moveSouth() {
-    instructionsController.text = "Move south";
+    instructionsController.text = "Move to third corner of your room";
   }
 
   void moveWest() {
-    instructionsController.text = "Move west";
+    instructionsController.text = "Move to fourth corner of your room";
   }
+
+  bool scanActive = false;
+  int pointCounter = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -142,36 +146,41 @@ class _ScanPageState extends State<ScanPage> {
         body: Container(
             child: SingleChildScrollView(
                 child: Column(children: <Widget>[
-          RaisedButton(
-            child: Text('Check sensor data(Debug)'),
-            onPressed: _checkInternetConnectivity,
-          ),
+          Padding(padding: new EdgeInsets.all(10.0)),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-            RaisedButton(
+            FlatButton(
+              color: Colors.grey,
               child: Text('Start scan'),
               onPressed: _startScan,
             ),
+            Padding(padding: new EdgeInsets.all(10.0)),
             RaisedButton(
-              child: Text('Set scan'),
+              color: Colors.grey,
+              child: Text('Set point'),
               onPressed: _setScan,
             ),
+            Padding(padding: new EdgeInsets.all(10.0)),
             RaisedButton(
+              color: Colors.grey,
               child: Text('Finish scan'),
               onPressed: _stopScan,
             ),
           ]),
           TextFormField(
             key: Key('wifi'),
+            readOnly: true,
             controller: wifiController,
             decoration: InputDecoration(labelText: 'wifi'),
           ),
           TextFormField(
             key: Key('gps'),
+            readOnly: true,
             controller: gpsController,
             decoration: InputDecoration(labelText: 'gps'),
           ),
           TextFormField(
             key: Key('instructions'),
+            readOnly: true,
             controller: instructionsController,
             decoration: InputDecoration(labelText: 'instructions'),
           ),
@@ -183,15 +192,37 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   _startScan() async {
-    _showDialog("Scan started", "TODO");
+    moveNorth();
+    scanActive = true;
+    pointCounter = 1;
   }
 
   _setScan() async {
-    _showDialog("Point set", "TODO");
+    if (scanActive) {
+      if (pointCounter == 1) {
+        moveEast();
+        pointCounter++;
+      } else if (pointCounter == 2) {
+        moveSouth();
+        pointCounter++;
+      } else if (pointCounter == 3) {
+        moveWest();
+        pointCounter++;
+      } else if (pointCounter == 4) {
+        _showDialog("Finished scan", "All Points have been scanned");
+        scanActive = false;
+        pointCounter = 0;
+      }
+    }
   }
 
   _stopScan() async {
-    _showDialog("Scan sopped", "TODO");
+    if (scanActive == true) {
+      _showDialog("Finished scan", "All Points have been scanned");
+      scanActive = false;
+      pointCounter = 0;
+    }
+    //_showDialog("Scan sopped", "TODO");
   }
 
   _checkInternetConnectivity() async {
