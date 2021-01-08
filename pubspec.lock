@@ -163,6 +163,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.19"
+  interpolate:
+    dependency: "direct main"
+    description:
+      name: interpolate
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2+2"
   intl:
     dependency: transitive
     description:

@@ -10,6 +10,7 @@ import 'dart:ui' as UI;
 import 'dart:typed_data';
 import 'SideDrawer.dart';
 import 'package:image/image.dart' as IMG;
+import 'package:interpolate/interpolate.dart';
 
 void main() => runApp(App());
 
@@ -50,18 +51,38 @@ class GpsPainter extends CustomPainter {
       ..color = Color(0xff638965)
       ..style = PaintingStyle.fill;
                                    */
-    double scale = 0.6;
+    double scale = 0.5;
     canvas.rotate(_repaint.value.toDouble() * math.pi / 180);
     canvas.scale(scale);
-    double imageHeight = _image.height.toDouble();
+    int resolutionRect = 100;
+    double imageHeight = resolutionRect.toDouble() * 4;
     double offsetHeight = -imageHeight * 1 * scale;
-
+    double colorLevels = 9.0;
 
     var paint1 = new Paint();
-    paint1.color = Color.fromARGB(255, 255, 255, 255);
-    if (_image != null) {
-      canvas.drawImage(_image, Offset(offsetHeight, offsetHeight), paint1);
+    paint1.color = Color.fromARGB(255, 0, 255, 0);
+    var data = new List.generate(resolutionRect, (i) => List.filled(resolutionRect, 0));
+
+    Interpolate interR = Interpolate(
+      inputRange: [0, colorLevels],
+      outputRange: [255, 0],
+      extrapolate: Extrapolate.clamp,
+    );
+    Interpolate interG = Interpolate(
+      inputRange: [0, 9],
+      outputRange: [0, 255],
+      extrapolate: Extrapolate.clamp,
+    );
+    for(int i = 0; i < data.length; i++){
+      for(int j = 0; j < data[0].length; j++){
+        paint1.color = Color.fromARGB(255, interR.eval(data[i][j].toDouble()).toInt(), interG.eval(data[i][j].toDouble()).toInt(), 0);
+        canvas.drawRect(Offset(offsetHeight + i.toDouble()*4, offsetHeight + j.toDouble()*4) & Size(4,4), paint1);
+      }
     }
+
+   /* if (_image != null) {
+      canvas.drawImage(_image, Offset(offsetHeight, offsetHeight), paint1);
+    }*/
     //canvas.drawRect(Offset(0, 0) & Size(50, 100), paint1);
   }
 
