@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 
+import 'LanguagesScreen.dart';
 import 'SideDrawer.dart';
 
 import 'package:wakelock/wakelock.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -16,10 +16,34 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPage extends State<SettingsPage> {
   // #enddocregion RWS-var
-  var value1 = true;
-  var value2 = false;
-  var value3 = false;
-  var keepScreenAwake = false;
+  var scanWifi = true;
+  var scanMobile = true;
+  var darkMode = true;
+  var keepScreenAwake = true;
+
+  SharedPreferences sharedPrefs;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() => sharedPrefs = prefs);
+      if (!prefs.containsKey("scanWifi")) {
+        sharedPrefs.setBool("scanWifi", false);
+      }
+      scanWifi = sharedPrefs.getBool("scanWifi");
+
+      if (!prefs.containsKey("scanMobile")) {
+        sharedPrefs.setBool("scanMobile", false);
+      }
+      scanMobile = sharedPrefs.getBool("scanMobile");
+
+      if (!prefs.containsKey("keepScreenAwake")) {
+        sharedPrefs.setBool("keepScreenAwake", false);
+      }
+      keepScreenAwake = sharedPrefs.getBool("keepScreenAwake");
+    });
+  }
 
   // #docregion _buildSuggestions
   @override
@@ -39,46 +63,46 @@ class _SettingsPage extends State<SettingsPage> {
                 title: 'Language',
                 subtitle: 'English',
                 leading: Icon(Icons.language),
-                onPressed: (BuildContext context) {},
+                onPressed: (BuildContext context) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LanguagesScreen()),
+                  );
+                },
               ),
               SettingsTile(
                 title: 'Delete scan history',
                 subtitle: 'Delete',
                 leading: Icon(Icons.delete),
-                onPressed: (BuildContext context) {},
+                onPressed: (BuildContext context) {
+                  _showDialog("Warning", "Are you sure that you want to delete your entire scan history?");
+                },
               ),
               SettingsTile.switchTile(
                 title: 'Keep screen awake',
                 leading: Icon(Icons.wb_sunny),
                 switchValue: keepScreenAwake,
                 onToggle: (bool value) {
-                  //_onSwitchChanged1(value);
                   _keepScreenAwake(value);
+                  sharedPrefs.setBool("keepScreenAwake", value);
                 },
               ),
               SettingsTile.switchTile(
                 title: 'Scan wifi',
                 leading: Icon(Icons.wifi),
-                switchValue: value1,
+                switchValue: scanWifi,
                 onToggle: (bool value) {
-                  _onSwitchChanged1(value);
+                  _scanWifi(value);
+                  sharedPrefs.setBool("scanWifi", value);
                 },
               ),
               SettingsTile.switchTile(
                 title: 'Scan mobile connection',
                 leading: Icon(Icons.data_usage),
-                switchValue: value2,
+                switchValue: scanMobile,
                 onToggle: (bool value) {
-                  _onSwitchChanged2(value);
-                },
-              ),
-              SettingsTile.switchTile(
-                title: 'Dark mode',
-                leading: Icon(Icons.adjust),
-                switchValue: value3,
-                onToggle: (bool value) {
-                  _onSwitchChanged3(value);
-                  _showDialog("Information", "Restart required");
+                  _scanMobile(value);
+                  sharedPrefs.setBool("scanMobile", value);
                 },
               ),
             ],
@@ -88,25 +112,16 @@ class _SettingsPage extends State<SettingsPage> {
     );
   }
 
-  void _onSwitchChanged1(bool value) {
+  void _scanWifi(bool value) {
     setState(() {
-      value1 = value;
+      scanWifi = value;
     });
   }
 
-  void _onSwitchChanged2(bool value) {
+  void _scanMobile(bool value) {
     setState(() {
-      value2 = value;
+      scanMobile = value;
     });
-  }
-
-  void _onSwitchChanged3(bool value) async{
-    setState(() {
-      value3 = value;
-    });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('darkMode', value3);
-
   }
 
   var logger = Logger();
@@ -134,7 +149,14 @@ class _SettingsPage extends State<SettingsPage> {
             content: Text(text),
             actions: <Widget>[
               FlatButton(
-                child: Text('Ok'),
+                child: Text('Yes'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // TODO Implement to delete scan history
+                },
+              ),
+              FlatButton(
+                child: Text('No'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
