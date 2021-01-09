@@ -164,7 +164,9 @@ class _ScanHistory extends State<ScanHistory> {
       ),
       onTap: () {
         //_showDialog(data.toString() + " " + data.coordinates.toString() + " " + data.strengths.toString(), "TODO go to scan");
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ScanDetailPage()),);
+
+
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ScanDetailPage(data.strengths[1])),);
 
       },
     );
