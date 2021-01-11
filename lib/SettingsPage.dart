@@ -152,7 +152,7 @@ class _SettingsPage extends State<SettingsPage> {
                 child: Text('Yes'),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  // TODO Implement to delete scan history
+                  sharedPrefs.clear();
                 },
               ),
               FlatButton(

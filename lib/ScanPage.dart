@@ -27,6 +27,7 @@ class App extends StatelessWidget {
       ),
       darkTheme: ThemeData(
         primarySwatch: primaryBlack,
+        brightness: Brightness.dark,
       ),
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
@@ -269,7 +270,11 @@ class _ScanPageState extends State<ScanPage> {
         _showDialog("Finished scan", "All Points have been scanned");
         scanActive = false;
         pointCounter = 0;
+        var tmp = await WifiInfoPlugin.wifiDetails;
+        strengths.add(tmp.signalStrength);
+        updateColors();
         await addData(measurePoints, strengths);
+        return;
       }
       var tmp = await WifiInfoPlugin.wifiDetails;
       strengths.add(tmp.signalStrength);

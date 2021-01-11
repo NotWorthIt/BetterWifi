@@ -86,6 +86,11 @@ Future addData(List<Vector2> coordinates, List<int> strengths) async{
 class _ScanHistory extends State<ScanHistory> {
 
   final _biggerFont = TextStyle(fontSize: 18.0);
+  @override
+  void initState() {
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +147,7 @@ class _ScanHistory extends State<ScanHistory> {
         //_showDialog(data.toString() + " " + data.coordinates.toString() + " " + data.strengths.toString(), "TODO go to scan");
 
 
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ScanDetailPage(data.strengths[1])),);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ScanDetailPage(data)),);
 
       },
     );
