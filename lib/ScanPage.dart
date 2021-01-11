@@ -13,28 +13,7 @@ import 'SideDrawer.dart';
 import 'package:interpolate/interpolate.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 
-void main() => runApp(App());
-
 var _data = new List.generate(100, (i) => List.filled(100, 0));
-
-class App extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Internet connectivity',
-      theme: ThemeData(
-        primarySwatch: Colors.grey,
-      ),
-      darkTheme: ThemeData(
-        primarySwatch: primaryBlack,
-        brightness: Brightness.dark,
-      ),
-      themeMode: ThemeMode.dark,
-      debugShowCheckedModeBanner: false,
-      home: ScanPage(),
-    );
-  }
-}
 
 class ScanPage extends StatefulWidget {
   @override
@@ -302,8 +281,6 @@ class _ScanPageState extends State<ScanPage> {
       _showDialog("Platform not support", "");
     }
   }
-
-
 
   _showDialog(title, text) {
     showDialog(
