@@ -115,7 +115,6 @@ class _ScanPageState extends State<ScanPage> {
   @override
   void initState() {
     super.initState();
-    loadImage();
     timerGps = Timer.periodic(Duration(milliseconds: 100), (Timer t) => updateGPS());
     timerWifi = Timer.periodic(Duration(seconds: 1), (Timer t) => updateWifi());
     painterGps = GpsPainter(repaint: valueGps);
@@ -130,10 +129,6 @@ class _ScanPageState extends State<ScanPage> {
     return completer.future;
   }
 
-  Future<void> loadImage() async {
-    image = await loadUiImage("assets/heatmap.png");
-    painterGps.setImage(image);
-  }
 
   Future<void> updateGPS() async {
     var tmp = await FlutterCompass.events.first;
