@@ -2,6 +2,7 @@ import 'dart:convert';
 
 //import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:wifi_tool/ScanDetailPage.dart';
 import 'package:wifi_tool/SideDrawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math.dart';
@@ -163,7 +164,11 @@ class _ScanHistory extends State<ScanHistory> {
         style: _biggerFont,
       ),
       onTap: () {
-        _showDialog(data.toString() + " " + data.coordinates.toString() + " " + data.strengths.toString(), "TODO go to scan");
+        //_showDialog(data.toString() + " " + data.coordinates.toString() + " " + data.strengths.toString(), "TODO go to scan");
+
+
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ScanDetailPage(data.strengths[1])),);
+
       },
     );
   }
