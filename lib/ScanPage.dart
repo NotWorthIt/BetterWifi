@@ -245,6 +245,9 @@ class _ScanPageState extends State<ScanPage> {
     moveNorth();
     scanActive = true;
     pointCounter = 1;
+    measurePoints = new List<Vector2>();
+    strengths = new List<int>();
+    updateColors();
   }
 
   _setScan() async {
@@ -267,9 +270,6 @@ class _ScanPageState extends State<ScanPage> {
         scanActive = false;
         pointCounter = 0;
         await addData(measurePoints, strengths);
-        measurePoints = new List<Vector2>();
-        strengths = new List<int>();
-        updateColors();
       }
       var tmp = await WifiInfoPlugin.wifiDetails;
       strengths.add(tmp.signalStrength);
@@ -283,9 +283,6 @@ class _ScanPageState extends State<ScanPage> {
       scanActive = false;
       pointCounter = 0;
       await addData(measurePoints, strengths);
-      measurePoints = new List<Vector2>();
-      strengths = new List<int>();
-      updateColors();
     }
   }
 
