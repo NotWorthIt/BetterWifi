@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-//import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi_tool/ScanDetailPage.dart';
 import 'package:wifi_tool/SideDrawer.dart';
@@ -90,30 +89,6 @@ class _ScanHistory extends State<ScanHistory> {
 
   @override
   Widget build(BuildContext context) {
-    //start of mock-up for presentation
-    /*List<Vector2> coordinates = <Vector2>[];
-    List<int> strengths = <int>[];
-    coordinates.add(new Vector2(3,4));
-    coordinates.add(new Vector2(5,6));
-    coordinates.add(new Vector2(8,9));
-    coordinates.add(new Vector2(4,4));
-    coordinates.add(new Vector2(0,4));
-
-    strengths.add(1);
-    strengths.add(2);
-    strengths.add(3);
-    strengths.add(4);
-    strengths.add(5);
-
-
-    addData(coordinates, strengths);
-    addData(coordinates, strengths);
-    addData(coordinates, strengths);
-    addData(coordinates, strengths);
-    addData(coordinates, strengths);
-
-    //end of mock-up
-    */
     return new Scaffold(
       appBar: AppBar(
         title: Text('Scan history'),

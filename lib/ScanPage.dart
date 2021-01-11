@@ -10,7 +10,6 @@ import 'package:wifi_tool/ScanHistoryPage.dart';
 import 'dart:ui' as UI;
 import 'dart:typed_data';
 import 'SideDrawer.dart';
-import 'package:image/image.dart' as IMG;
 import 'package:interpolate/interpolate.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 
@@ -43,14 +42,9 @@ class ScanPage extends StatefulWidget {
 
 class GpsPainter extends CustomPainter {
   var _repaint;
-  UI.Image _image;
 
   GpsPainter({Listenable repaint}) : super(repaint: repaint) {
     _repaint = repaint;
-  }
-
-  void setImage(UI.Image image) {
-    _image = image;
   }
 
   @override
@@ -274,9 +268,13 @@ class _ScanPageState extends State<ScanPage> {
         pointCounter++;
       } else if (pointCounter == 4) {
         measurePoints.add(new Vector2(20, 80));
-        /*_showDialog("Finished scan", "All Points have been scanned");
+        _showDialog("Finished scan", "All Points have been scanned");
         scanActive = false;
-        pointCounter = 0;*/
+        pointCounter = 0;
+        await addData(measurePoints, strengths);
+        measurePoints = new List<Vector2>();
+        strengths = new List<int>();
+        updateColors();
       }
       var tmp = await WifiInfoPlugin.wifiDetails;
       strengths.add(tmp.signalStrength);
