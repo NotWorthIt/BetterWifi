@@ -90,7 +90,7 @@ class _ScanHistory extends State<ScanHistory> {
   @override
   Widget build(BuildContext context) {
     //start of mock-up for presentation
-    List<Vector2> coordinates = <Vector2>[];
+    /*List<Vector2> coordinates = <Vector2>[];
     List<int> strengths = <int>[];
     coordinates.add(new Vector2(3,4));
     coordinates.add(new Vector2(5,6));
@@ -112,6 +112,7 @@ class _ScanHistory extends State<ScanHistory> {
     addData(coordinates, strengths);
 
     //end of mock-up
+    */
     return new Scaffold(
       appBar: AppBar(
         title: Text('Scan history'),
