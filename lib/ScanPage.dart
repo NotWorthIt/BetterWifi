@@ -14,6 +14,8 @@ import 'package:interpolate/interpolate.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 
 var _data = new List.generate(100, (i) => List.filled(100, 0));
+int _pointCounter = 0;
+bool _scanActive = false;
 
 class ScanPage extends StatefulWidget {
   @override
@@ -29,11 +31,6 @@ class GpsPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    /*
-    var paint1 = Paint()
-      ..color = Color(0xff638965)
-      ..style = PaintingStyle.fill;
-                                   */
     double scale = 0.5;
     canvas.rotate(-_repaint.value.toDouble() * math.pi / 180);
     canvas.scale(scale);
@@ -41,10 +38,10 @@ class GpsPainter extends CustomPainter {
     double imageHeight = resolutionRect.toDouble() * 4;
     double offsetHeight = -imageHeight * 1 * scale;
     double colorLevels = 9.0;
+    double sizeRect = 4;
 
     var paint1 = new Paint();
     paint1.color = Color.fromARGB(255, 0, 255, 0);
-    //var data = new List.generate(resolutionRect, (i) => List.filled(resolutionRect, 0));
 
     Interpolate interR = Interpolate(
       inputRange: [0, colorLevels],
@@ -60,14 +57,24 @@ class GpsPainter extends CustomPainter {
     for(int i = 0; i < _data.length; i++){
       for(int j = 0; j < _data[0].length; j++){
         paint1.color = Color.fromARGB(255, interR.eval(_data[i][j].toDouble()).toInt(), interG.eval(_data[i][j].toDouble()).toInt(), 0);
-        canvas.drawRect(Offset(offsetHeight + i.toDouble()*4, offsetHeight + j.toDouble()*4) & Size(4,4), paint1);
+        canvas.drawRect(Offset(offsetHeight + i.toDouble()*sizeRect, offsetHeight + j.toDouble()*sizeRect) & Size(sizeRect,sizeRect), paint1);
       }
     }
 
-   /* if (_image != null) {
-      canvas.drawImage(_image, Offset(offsetHeight, offsetHeight), paint1);
-    }*/
-    //canvas.drawRect(Offset(0, 0) & Size(50, 100), paint1);
+    paint1.color = Color.fromARGB(255, 0, 255, 0);
+    if (_scanActive) {
+      if (_pointCounter == 1) {
+        canvas.drawRect(Offset(-215, -215) & Size(10,10), paint1);
+      } else if (_pointCounter == 2) {
+        canvas.drawRect(Offset(210, -215) & Size(10,10), paint1);
+      } else if (_pointCounter == 3) {
+        canvas.drawRect(Offset(210, 210) & Size(10,10), paint1);
+      } else if (_pointCounter == 4) {
+        canvas.drawRect(Offset(-215, 210) & Size(10,10), paint1);
+      }
+    }
+
+
   }
 
   @override
@@ -131,6 +138,7 @@ class _ScanPageState extends State<ScanPage> {
         }
       }
     }
+
   }
 
   int calcDistance(double x, double y, int index1, int index2, maxStrength) {
@@ -162,9 +170,6 @@ class _ScanPageState extends State<ScanPage> {
   void moveWest() {
     instructionsController.text = "Move to fourth corner of your room";
   }
-
-  bool scanActive = false;
-  int pointCounter = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -223,32 +228,32 @@ class _ScanPageState extends State<ScanPage> {
 
   _startScan() async {
     moveNorth();
-    scanActive = true;
-    pointCounter = 1;
+    _scanActive = true;
+    _pointCounter = 1;
     measurePoints = new List<Vector2>();
     strengths = new List<int>();
     updateColors();
   }
 
   _setScan() async {
-    if (scanActive) {
-      if (pointCounter == 1) {
+    if (_scanActive) {
+      if (_pointCounter == 1) {
         moveEast();
         measurePoints.add(new Vector2(20, 20));
-        pointCounter++;
-      } else if (pointCounter == 2) {
+        _pointCounter++;
+      } else if (_pointCounter == 2) {
         moveSouth();
         measurePoints.add(new Vector2(80, 20));
-        pointCounter++;
-      } else if (pointCounter == 3) {
+        _pointCounter++;
+      } else if (_pointCounter == 3) {
         measurePoints.add(new Vector2(80, 80));
         moveWest();
-        pointCounter++;
-      } else if (pointCounter == 4) {
+        _pointCounter++;
+      } else if (_pointCounter == 4) {
         measurePoints.add(new Vector2(20, 80));
         _showDialog("Finished scan", "All Points have been scanned");
-        scanActive = false;
-        pointCounter = 0;
+        _scanActive = false;
+        _pointCounter = 0;
         var tmp = await WifiInfoPlugin.wifiDetails;
         strengths.add(tmp.signalStrength);
         updateColors();
@@ -262,10 +267,10 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   _stopScan() async {
-    if (scanActive == true) {
+    if (_scanActive == true) {
       _showDialog("Finished scan", "All Points have been scanned");
-      scanActive = false;
-      pointCounter = 0;
+      _scanActive = false;
+      _pointCounter = 0;
       await addData(measurePoints, strengths);
     }
   }
