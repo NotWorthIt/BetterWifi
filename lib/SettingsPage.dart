@@ -55,6 +55,7 @@ class _SettingsPage extends State<SettingsPage> {
       drawer: SideDrawer(),
       body: Center(
           child: SettingsList(
+            backgroundColor: Colors.grey[850],
         sections: [
           SettingsSection(
             title: 'General',
