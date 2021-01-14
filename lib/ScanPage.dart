@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:internet_speed_test/callbacks_enum.dart';
 import 'package:wifi_info_plugin/wifi_info_plugin.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:logger/logger.dart';
@@ -12,6 +13,7 @@ import 'dart:typed_data';
 import 'SideDrawer.dart';
 import 'package:interpolate/interpolate.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
+import 'package:internet_speed_test/internet_speed_test.dart';
 
 var _data = new List.generate(100, (i) => List.filled(100, 0));
 int _pointCounter = 0;
@@ -54,27 +56,25 @@ class GpsPainter extends CustomPainter {
       extrapolate: Extrapolate.clamp,
     );
 
-    for(int i = 0; i < _data.length; i++){
-      for(int j = 0; j < _data[0].length; j++){
+    for (int i = 0; i < _data.length; i++) {
+      for (int j = 0; j < _data[0].length; j++) {
         paint1.color = Color.fromARGB(255, interR.eval(_data[i][j].toDouble()).toInt(), interG.eval(_data[i][j].toDouble()).toInt(), 0);
-        canvas.drawRect(Offset(offsetHeight + i.toDouble()*sizeRect, offsetHeight + j.toDouble()*sizeRect) & Size(sizeRect,sizeRect), paint1);
+        canvas.drawRect(Offset(offsetHeight + i.toDouble() * sizeRect, offsetHeight + j.toDouble() * sizeRect) & Size(sizeRect, sizeRect), paint1);
       }
     }
 
     paint1.color = Color.fromARGB(255, 0, 255, 0);
     if (_scanActive) {
       if (_pointCounter == 1) {
-        canvas.drawRect(Offset(-215, -215) & Size(10,10), paint1);
+        canvas.drawRect(Offset(-215, -215) & Size(10, 10), paint1);
       } else if (_pointCounter == 2) {
-        canvas.drawRect(Offset(210, -215) & Size(10,10), paint1);
+        canvas.drawRect(Offset(210, -215) & Size(10, 10), paint1);
       } else if (_pointCounter == 3) {
-        canvas.drawRect(Offset(210, 210) & Size(10,10), paint1);
+        canvas.drawRect(Offset(210, 210) & Size(10, 10), paint1);
       } else if (_pointCounter == 4) {
-        canvas.drawRect(Offset(-215, 210) & Size(10,10), paint1);
+        canvas.drawRect(Offset(-215, 210) & Size(10, 10), paint1);
       }
     }
-
-
   }
 
   @override
@@ -99,6 +99,8 @@ class _ScanPageState extends State<ScanPage> {
 
   UI.Image image;
 
+  final internetSpeedTest = InternetSpeedTest();
+
   @override
   void initState() {
     super.initState();
@@ -115,7 +117,6 @@ class _ScanPageState extends State<ScanPage> {
     });
     return completer.future;
   }
-
 
   Future<void> updateGPS() async {
     var tmp = await FlutterCompass.events.first;
@@ -138,21 +139,16 @@ class _ScanPageState extends State<ScanPage> {
         }
       }
     }
-
   }
 
   int calcDistance(double x, double y, int index1, int index2, maxStrength) {
-    var maxRange = 30.0*(maxStrength/9.0);
+    var maxRange = 30.0 * (maxStrength / 9.0);
     Interpolate interDistance = Interpolate(
       inputRange: [0, maxRange],
       outputRange: [9, 0],
       extrapolate: Extrapolate.clamp,
     );
-    return interDistance.eval(math.sqrt(
-        math.pow(x - index1, 2) +
-            math.pow(y - index2, 2)))
-        .clamp(0, maxStrength)
-        .toInt();
+    return interDistance.eval(math.sqrt(math.pow(x - index1, 2) + math.pow(y - index2, 2))).clamp(0, maxStrength).toInt();
   }
 
   void moveNorth() {
@@ -170,6 +166,10 @@ class _ScanPageState extends State<ScanPage> {
   void moveWest() {
     instructionsController.text = "Move to fourth corner of your room";
   }
+
+  List<bool> strengthOrSpeed = [true, false];
+
+  //List<bool> strengthOrSpeed = [false, true];
 
   @override
   Widget build(BuildContext context) {
@@ -200,6 +200,7 @@ class _ScanPageState extends State<ScanPage> {
               child: Text('Finish scan'),
               onPressed: _stopScan,
             ),
+            Padding(padding: new EdgeInsets.all(10.0)),
           ]),
           TextFormField(
             key: Key('wifi'),
@@ -219,6 +220,26 @@ class _ScanPageState extends State<ScanPage> {
             controller: instructionsController,
             decoration: InputDecoration(labelText: 'instructions'),
           ),
+          ToggleButtons(
+            children: <Widget>[
+              Icon(Icons.speed),
+              Icon(Icons.signal_cellular_4_bar),
+            ],
+            isSelected: strengthOrSpeed,
+            onPressed: (int index) {
+              setState(() {
+                //_isSelected[index] = !_isSelected[index];
+                if (index == 0 && strengthOrSpeed[0] == false) {
+                  strengthOrSpeed[0] = true;
+                  strengthOrSpeed[1] = false;
+                }
+                else if (index == 1 && strengthOrSpeed[1] == false) {
+                  strengthOrSpeed[1] = true;
+                  strengthOrSpeed[0] = false;
+                }
+              });
+            },
+          ),
           Padding(padding: new EdgeInsets.all(100.0)),
           CustomPaint(
             painter: painterGps,
@@ -236,7 +257,7 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   _setScan() async {
-    if (_scanActive) {
+    if (_scanActive && !scanning) {
       if (_pointCounter == 1) {
         moveEast();
         measurePoints.add(new Vector2(20, 20));
@@ -251,19 +272,80 @@ class _ScanPageState extends State<ScanPage> {
         _pointCounter++;
       } else if (_pointCounter == 4) {
         measurePoints.add(new Vector2(20, 80));
-        _showDialog("Finished scan", "All Points have been scanned");
         _scanActive = false;
         _pointCounter = 0;
+        if (strengthOrSpeed[1]) {
+          _showDialog("Finished scan", "All Points have been scanned");
+          var tmp = await WifiInfoPlugin.wifiDetails;
+          strengths.add(tmp.signalStrength);
+          updateColors();
+          await addData(measurePoints, strengths);
+        }
+        else if (strengthOrSpeed[0]) {
+          _speedTestDownload();
+        }
+        return;
+      }
+      if (strengthOrSpeed[1]) {
         var tmp = await WifiInfoPlugin.wifiDetails;
         strengths.add(tmp.signalStrength);
         updateColors();
-        await addData(measurePoints, strengths);
-        return;
       }
-      var tmp = await WifiInfoPlugin.wifiDetails;
-      strengths.add(tmp.signalStrength);
-      updateColors();
+      else if (strengthOrSpeed[0]) {
+        _speedTestDownload();
+      }
     }
+  }
+
+  bool scanning = false;
+  _speedTestDownload() async {
+    var points = new List();
+    double res = 0;
+    internetSpeedTest.startDownloadTesting(
+      onDone: (double transferRate, SpeedUnit unit) {
+        //_showDialog("transferRate", "" + transferRate.toString());
+        // TODO: Change UI
+        instructionsController.text = "Move to next corner marked on heatmap";
+        for (var i in points) {
+          res = res + i;
+        }
+        res = res / points.length;
+        strengths.add(res.toInt());
+        if (_scanActive == false) {
+          updateColors();
+          addData(measurePoints, strengths);
+          _showDialog("Finished scan", "All Points have been scanned");
+        }
+        updateColors();
+        valueGps.value = valueGps.value + 1;
+        valueGps.value = valueGps.value - 1;
+        scanning = false;
+      },
+      onProgress: (double percent, double transferRate, SpeedUnit unit) {
+        // TODO: Change UI
+        int per = percent.toInt();
+        instructionsController.text = "PLEASE WAIT SCAN IS IN PROGRESS: $per";
+        points.add(transferRate);
+        scanning = true;
+      },
+      onError: (String errorMessage, String speedTestError) {
+        // TODO: Show toast error
+      },
+    );
+  }
+
+  _speedTestUpload() async {
+    internetSpeedTest.startUploadTesting(
+      onDone: (double transferRate, SpeedUnit unit) {
+        // TODO: Change UI
+      },
+      onProgress: (double percent, double transferRate, SpeedUnit unit) {
+        // TODO: Change UI
+      },
+      onError: (String errorMessage, String speedTestError) {
+        // TODO: Show toast error
+      },
+    );
   }
 
   _stopScan() async {

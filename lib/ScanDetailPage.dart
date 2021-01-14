@@ -66,18 +66,13 @@ class GpsPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 class ScanDetailPage extends StatefulWidget {
-
   Data data;
   ScanDetailPage(Data data) {
     this.data = data;
   }
-
   @override
   _ScanDetailPage createState() => _ScanDetailPage(data);
 }
-
-
-
 
 class _ScanDetailPage extends State<ScanDetailPage> {
   Data data;

@@ -1,9 +1,5 @@
-
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'ScanPage.dart';
 
 void main() => runApp(App());
