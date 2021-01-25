@@ -141,6 +141,10 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
+  void openSettings () async{
+    await platform.invokeMethod('enableWifi');
+  }
+
   int calcDistance(double x, double y, int index1, int index2, maxStrength) {
     var maxRange = 30.0 * (maxStrength / 9.0);
     Interpolate interDistance = Interpolate(
@@ -168,6 +172,7 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   List<bool> strengthOrSpeed = [true, false];
+  List<bool> mobileOrWifi = [true, false];
 
   //List<bool> strengthOrSpeed = [false, true];
 
@@ -203,43 +208,62 @@ class _ScanPageState extends State<ScanPage> {
             Padding(padding: new EdgeInsets.all(10.0)),
           ]),
           TextFormField(
-            key: Key('wifi'),
-            readOnly: true,
-            controller: wifiController,
-            decoration: InputDecoration(labelText: 'wifi'),
-          ),
-          TextFormField(
-            key: Key('gps'),
-            readOnly: true,
-            controller: gpsController,
-            decoration: InputDecoration(labelText: 'gps'),
-          ),
-          TextFormField(
             key: Key('instructions'),
             readOnly: true,
             controller: instructionsController,
             decoration: InputDecoration(labelText: 'instructions'),
           ),
-          ToggleButtons(
-            children: <Widget>[
-              Icon(Icons.speed),
-              Icon(Icons.signal_cellular_4_bar),
-            ],
-            isSelected: strengthOrSpeed,
-            onPressed: (int index) {
-              setState(() {
-                //_isSelected[index] = !_isSelected[index];
-                if (index == 0 && strengthOrSpeed[0] == false) {
-                  strengthOrSpeed[0] = true;
-                  strengthOrSpeed[1] = false;
-                }
-                else if (index == 1 && strengthOrSpeed[1] == false) {
-                  strengthOrSpeed[1] = true;
-                  strengthOrSpeed[0] = false;
-                }
-              });
-            },
-          ),
+          Padding(padding: new EdgeInsets.all(5.0)),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
+            Text("Speed"),
+            ToggleButtons(
+              children: <Widget>[
+                Icon(Icons.speed),
+                Icon(Icons.signal_cellular_4_bar),
+              ],
+              isSelected: strengthOrSpeed,
+              onPressed: (int index) {
+                setState(() {
+                  //_isSelected[index] = !_isSelected[index];
+                  if (index == 0 && strengthOrSpeed[0] == false) {
+                    strengthOrSpeed[0] = true;
+                    strengthOrSpeed[1] = false;
+                  } else if (index == 1 && strengthOrSpeed[1] == false) {
+                    strengthOrSpeed[1] = true;
+                    strengthOrSpeed[0] = false;
+                  }
+                });
+              },
+            ),
+            Text("Strength"),
+          ]),
+          Padding(padding: new EdgeInsets.all(5.0)),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
+            Text("wifi"),
+            ToggleButtons(
+              children: <Widget>[
+                Icon(Icons.wifi),
+                Icon(Icons.signal_cellular_alt_sharp),
+              ],
+              isSelected: mobileOrWifi,
+              onPressed: (int index) {
+                setState(() {
+                  //_isSelected[index] = !_isSelected[index];
+                  if (index == 0 && mobileOrWifi[0] == false) {
+                    mobileOrWifi[0] = true;
+                    mobileOrWifi[1] = false;
+                    _dialogConnectionSettings("Attention","Please enable WIFI and disable MOBILE \nAndroid Q doesn't allow this anymore automatically");
+                  } else if (index == 1 && mobileOrWifi[1] == false) {
+                    mobileOrWifi[1] = true;
+                    mobileOrWifi[0] = false;
+                    _dialogConnectionSettings("Attention","Please enable MOBILE and disable WIFI\nAndroid Q doesn't allow this anymore automatically");
+                  }
+                });
+              },
+            ),
+            Text("mobile")
+
+          ]),
           Padding(padding: new EdgeInsets.all(100.0)),
           CustomPaint(
             painter: painterGps,
@@ -276,8 +300,15 @@ class _ScanPageState extends State<ScanPage> {
         _pointCounter = 0;
         if (strengthOrSpeed[1]) {
           _showDialog("Finished scan", "All Points have been scanned");
-          var tmp = await WifiInfoPlugin.wifiDetails;
-          strengths.add(tmp.signalStrength);
+          var tmp;
+          if(mobileOrWifi[0]){
+            var newTmp = await WifiInfoPlugin.wifiDetails;
+            tmp = newTmp.signalStrength;
+          }
+          else{
+            tmp = await _getGsmSignalStrength();
+          }
+          strengths.add(tmp);
           updateColors();
           await addData(measurePoints, strengths);
         }
@@ -287,8 +318,15 @@ class _ScanPageState extends State<ScanPage> {
         return;
       }
       if (strengthOrSpeed[1]) {
-        var tmp = await WifiInfoPlugin.wifiDetails;
-        strengths.add(tmp.signalStrength);
+        var tmp;
+        if(mobileOrWifi[0]){
+          var newTmp = await WifiInfoPlugin.wifiDetails;
+          tmp = newTmp.signalStrength;
+        }
+        else{
+          tmp = await _getGsmSignalStrength();
+        }
+        strengths.add(tmp);
         updateColors();
       }
       else if (strengthOrSpeed[0]) {
@@ -298,6 +336,7 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   bool scanning = false;
+
   _speedTestDownload() async {
     var points = new List();
     double res = 0;
@@ -368,6 +407,28 @@ class _ScanPageState extends State<ScanPage> {
       _showDialog("Platform not support", "");
     }
   }
+  _dialogConnectionSettings(title, text) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(text),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Ok'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  openSettings();
+                },
+              )
+            ],
+          );
+        });
+  }
+
+
+
 
   _showDialog(title, text) {
     showDialog(
