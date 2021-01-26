@@ -299,6 +299,8 @@ class _ScanPageState extends State<ScanPage> {
     updateColors();
   }
 
+  double maxSpeed = 0.0;
+
   _setScan() async {
     if (_scanActive && !scanning) {
       if (_pointCounter == 1) {
@@ -331,7 +333,17 @@ class _ScanPageState extends State<ScanPage> {
           updateColors();
           await addData(measurePoints, strengths);
         } else if (strengthOrSpeed[0]) {
-          _speedTestDownload();
+          Interpolate interR = Interpolate(
+            inputRange: [0, maxSpeed],
+            outputRange: [0, 9],
+            extrapolate: Extrapolate.clamp,
+          );
+          Interpolate interpol = Interpolate(
+            inputRange: [0, maxSpeed],
+            outputRange: [0, 9],
+            extrapolate: Extrapolate.clamp,
+          );
+          _speedTestDownload(interpol);
         }
         return;
       }
@@ -347,14 +359,19 @@ class _ScanPageState extends State<ScanPage> {
         strengths.add(tmp);
         updateColors();
       } else if (strengthOrSpeed[0]) {
-        _speedTestDownload();
+        Interpolate interpol = Interpolate(
+          inputRange: [0, maxSpeed],
+          outputRange: [0, 9],
+          extrapolate: Extrapolate.clamp,
+        );
+        _speedTestDownload(interpol);
       }
     }
   }
 
   bool scanning = false;
 
-  _speedTestDownload() async {
+  _speedTestDownload(Interpolate interpol) async {
     var points = new List();
     double res = 0;
     internetSpeedTest.startDownloadTesting(
@@ -366,7 +383,8 @@ class _ScanPageState extends State<ScanPage> {
           res = res + i;
         }
         res = res / points.length;
-        strengths.add(res.toInt());
+        maxSpeed = math.max(maxSpeed, res);
+        strengths.add(interpol.eval(res).toInt());
         if (_scanActive == false) {
           updateColors();
           addData(measurePoints, strengths);
