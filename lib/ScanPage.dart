@@ -100,6 +100,19 @@ class _ScanPageState extends State<ScanPage> {
   UI.Image image;
 
   final internetSpeedTest = InternetSpeedTest();
+  static const platform = const MethodChannel('samples.flutter.dev/signalStrength');
+
+  Future<int> _getGsmSignalStrength() async {
+    try {
+      final int result = await platform.invokeMethod('getGsmSignalStrength');
+      return result;
+    } on PlatformException catch (e) {
+      return -1;
+    }
+  }
+
+
+
 
   @override
   void initState() {
@@ -311,8 +324,7 @@ class _ScanPageState extends State<ScanPage> {
           strengths.add(tmp);
           updateColors();
           await addData(measurePoints, strengths);
-        }
-        else if (strengthOrSpeed[0]) {
+        } else if (strengthOrSpeed[0]) {
           _speedTestDownload();
         }
         return;
@@ -328,8 +340,7 @@ class _ScanPageState extends State<ScanPage> {
         }
         strengths.add(tmp);
         updateColors();
-      }
-      else if (strengthOrSpeed[0]) {
+      } else if (strengthOrSpeed[0]) {
         _speedTestDownload();
       }
     }
@@ -344,7 +355,7 @@ class _ScanPageState extends State<ScanPage> {
       onDone: (double transferRate, SpeedUnit unit) {
         //_showDialog("transferRate", "" + transferRate.toString());
         // TODO: Change UI
-        instructionsController.text = "Move to next corner marked on heatmap";
+        instructionsController.text = "Move to the next point marked on heatmap";
         for (var i in points) {
           res = res + i;
         }
@@ -362,8 +373,8 @@ class _ScanPageState extends State<ScanPage> {
       },
       onProgress: (double percent, double transferRate, SpeedUnit unit) {
         // TODO: Change UI
-        int per = percent.toInt();
-        instructionsController.text = "PLEASE WAIT SCAN IS IN PROGRESS: $per";
+        int percentInt = percent.toInt();
+        instructionsController.text = "PLEASE WAIT SCAN IS IN PROGRESS: $percentInt";
         points.add(transferRate);
         scanning = true;
       },
@@ -426,9 +437,6 @@ class _ScanPageState extends State<ScanPage> {
           );
         });
   }
-
-
-
 
   _showDialog(title, text) {
     showDialog(
