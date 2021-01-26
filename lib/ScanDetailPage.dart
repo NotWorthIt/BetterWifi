@@ -10,7 +10,7 @@ import 'package:vector_math/vector_math.dart';
 import 'ScanHistoryPage.dart';
 import 'SideDrawer.dart';
 
-var _data = new List.generate(100, (i) => List.filled(100, 0));
+var _data = new List.generate(100, (i) => List.filled(100, -1));
 
 class GpsPainter extends CustomPainter {
   var _repaint;
@@ -51,15 +51,17 @@ class GpsPainter extends CustomPainter {
 
     for (int i = 0; i < _data.length; i++) {
       for (int j = 0; j < _data[0].length; j++) {
-        paint1.color = Color.fromARGB(255, interR.eval(_data[i][j].toDouble()).toInt(), interG.eval(_data[i][j].toDouble()).toInt(), 0);
+        if(_data[i][j] == -1){
+          paint1.color = Color.fromARGB(255, 192, 192, 192);
+        }else {
+          paint1.color = Color.fromARGB(
+              255, interR.eval(_data[i][j].toDouble()).toInt(),
+              interG.eval(_data[i][j].toDouble()).toInt(), 0);
+        }
         canvas.drawRect(Offset(offsetHeight + i.toDouble() * 4, offsetHeight + j.toDouble() * 4) & Size(4, 4), paint1);
       }
     }
 
-    /* if (_image != null) {
-      canvas.drawImage(_image, Offset(offsetHeight, offsetHeight), paint1);
-    }*/
-    //canvas.drawRect(Offset(0, 0) & Size(50, 100), paint1);
   }
 
   @override
@@ -82,7 +84,7 @@ class _ScanDetailPage extends State<ScanDetailPage> {
   }
 
   void updateColors() {
-    _data = new List.generate(100, (i) => List.filled(100, 0));
+    _data = new List.generate(100, (i) => List.filled(100, -1));
     for (int i = 0; i < data.coordinates.length; i++) {
       for (int j = 0; j < _data.length; j++) {
         for (int k = 0; k < _data[0].length; k++) {
