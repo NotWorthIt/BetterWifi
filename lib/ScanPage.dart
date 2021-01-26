@@ -79,6 +79,8 @@ class GpsPainter extends CustomPainter {
         canvas.drawRect(Offset(210, 210) & Size(10, 10), paint1);
       } else if (_pointCounter == 4) {
         canvas.drawRect(Offset(-215, 210) & Size(10, 10), paint1);
+      } else if (_pointCounter == 5) {
+        canvas.drawRect(Offset(0, 0) & Size(10, 10), paint1);
       }
     }
   }
@@ -188,6 +190,9 @@ class _ScanPageState extends State<ScanPage> {
 
   void moveWest() {
     instructionsController.text = "Move to fourth corner of your room";
+  }
+  void moveCenter() {
+    instructionsController.text = "Move to the center of your room";
   }
 
   List<bool> strengthOrSpeed = [true, false];
@@ -317,6 +322,10 @@ class _ScanPageState extends State<ScanPage> {
         _pointCounter++;
       } else if (_pointCounter == 4) {
         measurePoints.add(new Vector2(20, 80));
+        moveCenter();
+        _pointCounter++;
+      } else if (_pointCounter == 5) {
+        measurePoints.add(new Vector2(50, 50));
         _scanActive = false;
         _pointCounter = 0;
         if (strengthOrSpeed[1]) {
