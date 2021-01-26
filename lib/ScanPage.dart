@@ -58,12 +58,10 @@ class GpsPainter extends CustomPainter {
 
     for (int i = 0; i < _data.length; i++) {
       for (int j = 0; j < _data[0].length; j++) {
-        if(_data[i][j] == -1){
+        if (_data[i][j] == -1) {
           paint1.color = Color.fromARGB(255, 192, 192, 192);
-        }else {
-          paint1.color = Color.fromARGB(
-              255, interR.eval(_data[i][j].toDouble()).toInt(),
-              interG.eval(_data[i][j].toDouble()).toInt(), 0);
+        } else {
+          paint1.color = Color.fromARGB(255, interR.eval(_data[i][j].toDouble()).toInt(), interG.eval(_data[i][j].toDouble()).toInt(), 0);
         }
         canvas.drawRect(Offset(offsetHeight + i.toDouble() * sizeRect, offsetHeight + j.toDouble() * sizeRect) & Size(sizeRect, sizeRect), paint1);
       }
@@ -119,9 +117,6 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-
-
-
   @override
   void initState() {
     super.initState();
@@ -162,7 +157,7 @@ class _ScanPageState extends State<ScanPage> {
     }
   }
 
-  void openSettings () async{
+  void openSettings() async {
     await platform.invokeMethod('enableWifi');
   }
 
@@ -211,32 +206,23 @@ class _ScanPageState extends State<ScanPage> {
             child: SingleChildScrollView(
                 child: Column(children: <Widget>[
           Padding(padding: new EdgeInsets.all(10.0)),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
             FlatButton(
               color: Colors.grey,
               child: Text('Start scan'),
               onPressed: _startScan,
             ),
-            Padding(padding: new EdgeInsets.all(10.0)),
             RaisedButton(
               color: Colors.grey,
               child: Text('Set point'),
               onPressed: _setScan,
             ),
-            Padding(padding: new EdgeInsets.all(10.0)),
             RaisedButton(
               color: Colors.grey,
               child: Text('Finish scan'),
               onPressed: _stopScan,
             ),
-            Padding(padding: new EdgeInsets.all(10.0)),
           ]),
-          TextFormField(
-            key: Key('instructions'),
-            readOnly: true,
-            controller: instructionsController,
-            decoration: InputDecoration(labelText: 'instructions'),
-          ),
           Padding(padding: new EdgeInsets.all(5.0)),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
             Text("Speed"),
@@ -263,7 +249,7 @@ class _ScanPageState extends State<ScanPage> {
           ]),
           Padding(padding: new EdgeInsets.all(5.0)),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
-            Text("wifi"),
+            Text("Wi-Fi"),
             ToggleButtons(
               children: <Widget>[
                 Icon(Icons.wifi),
@@ -276,18 +262,23 @@ class _ScanPageState extends State<ScanPage> {
                   if (index == 0 && mobileOrWifi[0] == false) {
                     mobileOrWifi[0] = true;
                     mobileOrWifi[1] = false;
-                    _dialogConnectionSettings("Attention","Please enable WIFI and disable MOBILE \nAndroid Q doesn't allow this anymore automatically");
+                    _dialogConnectionSettings("Attention", "Please enable WIFI and disable MOBILE \nAndroid Q doesn't allow this anymore automatically");
                   } else if (index == 1 && mobileOrWifi[1] == false) {
                     mobileOrWifi[1] = true;
                     mobileOrWifi[0] = false;
-                    _dialogConnectionSettings("Attention","Please enable MOBILE and disable WIFI\nAndroid Q doesn't allow this anymore automatically");
+                    _dialogConnectionSettings("Attention", "Please enable MOBILE and disable WIFI\nAndroid Q doesn't allow this anymore automatically");
                   }
                 });
               },
             ),
-            Text("mobile")
-
+            Text("Mobile")
           ]),
+          TextFormField(
+            key: Key('instructions'),
+            readOnly: true,
+            controller: instructionsController,
+            decoration: InputDecoration(labelText: 'instructions'),
+          ),
           Padding(padding: new EdgeInsets.all(100.0)),
           CustomPaint(
             painter: painterGps,
@@ -303,9 +294,7 @@ class _ScanPageState extends State<ScanPage> {
     strengths = new List<int>();
     updateColors();
   }
-
   double maxSpeed = 0.0;
-
   _setScan() async {
     if (_scanActive && !scanning) {
       if (_pointCounter == 1) {
@@ -331,11 +320,10 @@ class _ScanPageState extends State<ScanPage> {
         if (strengthOrSpeed[1]) {
           _showDialog("Finished scan", "All Points have been scanned");
           var tmp;
-          if(mobileOrWifi[0]){
+          if (mobileOrWifi[0]) {
             var newTmp = await WifiInfoPlugin.wifiDetails;
             tmp = newTmp.signalStrength;
-          }
-          else{
+          } else {
             tmp = await _getGsmSignalStrength();
           }
           strengths.add(tmp);
@@ -358,11 +346,10 @@ class _ScanPageState extends State<ScanPage> {
       }
       if (strengthOrSpeed[1]) {
         var tmp;
-        if(mobileOrWifi[0]){
+        if (mobileOrWifi[0]) {
           var newTmp = await WifiInfoPlugin.wifiDetails;
           tmp = newTmp.signalStrength;
-        }
-        else{
+        } else {
           tmp = await _getGsmSignalStrength();
         }
         strengths.add(tmp);
@@ -451,6 +438,7 @@ class _ScanPageState extends State<ScanPage> {
       _showDialog("Platform not support", "");
     }
   }
+
   _dialogConnectionSettings(title, text) {
     showDialog(
         context: context,
